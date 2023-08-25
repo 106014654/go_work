@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+
 	//web server setting
 	server := init_web.InitWebServer()
 	//middleware
@@ -30,7 +31,11 @@ func main() {
 	//register route
 	uHandle.RegisteRoute(server)
 
-	server.Run(":9090")
+	//server := gin.Default()
+	//server.GET("/hello", func(ctx *gin.Context) {
+	//	ctx.String(http.StatusOK, "success")
+	//})
+	server.Run(":8081")
 }
 
 func initHandler(db *gorm.DB) *web.UserHandler {
@@ -42,7 +47,8 @@ func initHandler(db *gorm.DB) *web.UserHandler {
 }
 
 func initDb() *gorm.DB {
-	db, err := gorm.Open(mysql.Open("root:root@tcp(localhost:13316)/webook"))
+	//db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
+	db, err := gorm.Open(mysql.Open("root:root@tcp(webook-live-mysql:3308)/webook"))
 	if err != nil {
 		panic(err)
 	}

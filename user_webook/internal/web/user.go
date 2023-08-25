@@ -46,6 +46,9 @@ func (c *UserHandler) RegisteRoute(server *gin.Engine) {
 	ug.POST("/login", c.login)
 	ug.POST("/edit", c.edit)
 	ug.POST("/profile", c.profile)
+	ug.GET("/hello", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "success")
+	})
 }
 
 func (c *UserHandler) signUp(ctx *gin.Context) {
@@ -98,7 +101,7 @@ func (c *UserHandler) signUp(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.String(http.StatusOK, "系统异常")
+		ctx.String(http.StatusInternalServerError, "系统错误")
 		return
 	}
 
@@ -125,7 +128,7 @@ func (c *UserHandler) login(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.String(http.StatusInternalServerError, "系统错误")
 	}
 	fmt.Println(user.Id, user.Email)
 	session := sessions.Default(ctx)
@@ -193,7 +196,7 @@ func (c *UserHandler) edit(ctx *gin.Context) {
 	err = c.uservice.EditUserDetail(ctx, value, req.NickName, req.Birth, req.Introduction)
 
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.String(http.StatusInternalServerError, "系统错误")
 		return
 	}
 
