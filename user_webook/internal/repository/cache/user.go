@@ -13,6 +13,11 @@ import (
 
 var ERRREDISNIL = redis.Nil
 
+type UserCacheInter interface {
+	Get(ctx context.Context, id int64) (domain.User, error)
+	Set(ctx context.Context, u domain.User) error
+}
+
 type RedisUserCache struct {
 	// 传单机 Redis 可以
 	// 传 cluster 的 Redis 也可以
@@ -20,7 +25,7 @@ type RedisUserCache struct {
 	expiration time.Duration
 }
 
-func NewUserCache(client redis.Cmdable) *RedisUserCache {
+func NewUserCache(client redis.Cmdable) UserCacheInter {
 	return &RedisUserCache{
 		client:     client,
 		expiration: time.Minute * 15,

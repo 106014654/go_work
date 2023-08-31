@@ -10,11 +10,18 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+type UserDAOInter interface {
+	FindByEmail(ctx context.Context, email string) (User, error)
+	FindById(ctx context.Context, id int64) (User, error)
+	Insert(ctx context.Context, u User) error
+	Update(ctx context.Context, u User) error
+}
+
 type GORMUserDAO struct {
 	db *gorm.DB
 }
 
-func NewGORMUserDAO(db *gorm.DB) *GORMUserDAO {
+func NewGORMUserDAO(db *gorm.DB) UserDAOInter {
 	return &GORMUserDAO{
 		db: db,
 	}

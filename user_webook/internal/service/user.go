@@ -13,11 +13,18 @@ import (
 
 var ErrInvalidEmailOrPassword = errors.New("邮箱或密码对")
 
-type UserService struct {
-	ur *repository.UserRepository
+type UserServiceInter interface {
+	Login(ctx context.Context, email, password string) (domain.User, error)
+	SignUp(ctx context.Context, u domain.User) error
+	Profile(ctx context.Context, id int64) (domain.User, error)
+	EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error
 }
 
-func NewUserService(usr *repository.UserRepository) *UserService {
+type UserService struct {
+	ur repository.UserRepositoryRepInter
+}
+
+func NewUserService(usr repository.UserRepositoryRepInter) UserServiceInter {
 	return &UserService{
 		ur: usr,
 	}

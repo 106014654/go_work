@@ -12,14 +12,22 @@ import (
 	"go_work/user_webook/internal/repository/dao"
 )
 
-type UserRepository struct {
-	dao   *dao.GORMUserDAO
-	cache *cache.RedisUserCache
+type UserRepositoryRepInter interface {
+	FindByEmail(ctx context.Context, email string) (domain.User, error)
+	Create(ctx context.Context, u domain.User) error
+	FindById(ctx context.Context, id int64) (domain.User, error)
+	EditByUserId(ctx context.Context, u domain.User) error
+	FindByUserId(ctx context.Context, id int64) (domain.User, error)
 }
 
-func NewUserRepository(d *dao.GORMUserDAO, cache *cache.RedisUserCache) *UserRepository {
+type UserRepository struct {
+	dao   dao.UserDAOInter
+	cache cache.UserCacheInter
+}
+
+func NewUserRepository(dao dao.UserDAOInter, cache cache.UserCacheInter) UserRepositoryRepInter {
 	return &UserRepository{
-		dao:   d,
+		dao:   dao,
 		cache: cache,
 	}
 }
@@ -63,6 +71,7 @@ func (ur *UserRepository) FindById(ctx context.Context, id int64) (domain.User, 
 	//cache
 	us, err := ur.cache.Get(ctx, id)
 
+	fmt.Println(err, err == cache.ERRREDISNIL)
 	if err == cache.ERRREDISNIL {
 		//dao
 		udao, er := ur.dao.FindById(ctx, id)

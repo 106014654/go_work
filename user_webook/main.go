@@ -24,7 +24,7 @@ func main() {
 	store := cookie.NewStore([]byte("secret"))
 	server.Use(sessions.Sessions("mysession", store))
 
-	server.Use(middleware.NewLoginJWTMiddleware().
+	server.Use(middleware.NewLoginMiddleware().
 		AddIngorePath("/users/login").
 		AddIngorePath("/users/profile").
 		AddIngorePath("/users/signup").Build())
@@ -50,7 +50,10 @@ func initHandler(db *gorm.DB, redis redis.Cmdable) *web.UserHandler {
 	cache := cache2.NewUserCache(redis)
 	rps := repository.NewUserRepository(dao, cache)
 	svc := service.NewUserService(rps)
-	uHandle := web.NewUserHandler(svc)
+	rcache := cache2.NewCodeCache(redis)
+	cacherps := repository.NewCodeRepository(rcache)
+	codesvc := service.NewCodeService(cacherps)
+	uHandle := web.NewUserHandler(svc, codesvc)
 	return uHandle
 }
 
