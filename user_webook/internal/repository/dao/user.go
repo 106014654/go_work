@@ -2,10 +2,12 @@ package dao
 
 import (
 	"context"
+	"database/sql"
 	"errors"
-	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 type GORMUserDAO struct {
@@ -60,7 +62,8 @@ func (ud *GORMUserDAO) Update(ctx context.Context, u User) error {
 type User struct {
 	Id int64 `gorm:"primaryKey,autoIncrement"`
 	// 全部用户唯一
-	Email    string `gorm:"unique"`
+	Email    sql.NullString `gorm:"unique"`
+	Phone    sql.NullString `gorm:"unique"`
 	Password string
 
 	// 往这面加

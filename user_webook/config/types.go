@@ -11,3 +11,7 @@ type DBConfig struct {
 type RedisConfig struct {
 	Addr string
 }
+
+func main() {
+
+}

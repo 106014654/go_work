@@ -2,12 +2,16 @@ package web
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/golang-jwt/jwt/v5"
+
 	"go_work/user_webook/internal/domain"
 	"go_work/user_webook/internal/service"
-	"net/http"
 )
 
 const (
@@ -43,9 +47,11 @@ func (c *UserHandler) RegisteRoute(server *gin.Engine) {
 	ug := server.Group("/users")
 
 	ug.POST("/signup", c.signUp)
-	ug.POST("/login", c.login)
+	//ug.POST("/login", c.login)
+	ug.POST("/login", c.loginJWT)
 	ug.POST("/edit", c.edit)
 	ug.POST("/profile", c.profile)
+	//ug.POST("/profile", c.profileJWT)
 	ug.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "success")
 	})
@@ -138,6 +144,55 @@ func (c *UserHandler) login(ctx *gin.Context) {
 	return
 }
 
+type UserClaims struct {
+	jwt.RegisteredClaims
+	// 声明你自己的要放进去 token 里面的数据
+	Uid int64
+	// 自己随便加
+	UserAgent string
+}
+
+func (c *UserHandler) loginJWT(ctx *gin.Context) {
+	type signUpReq struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var req signUpReq
+
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	fmt.Println(req.Email, req.Password)
+	user, err := c.uservice.Login(ctx, req.Email, req.Password)
+
+	if err == service.ErrInvalidEmailOrPassword {
+		ctx.String(http.StatusOK, "邮箱或密码不正确")
+		return
+	}
+
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "系统错误")
+	}
+
+	claims := UserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
+		},
+		Uid:       user.Id,
+		UserAgent: ctx.Request.UserAgent(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+	tokenStr, err := token.SignedString([]byte("95osj3fUD7fo0mlYdDbncXz4VD2igvf0"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "系统错误")
+	}
+	ctx.Header("x-jwt-token", tokenStr)
+
+	ctx.String(http.StatusOK, "登录成功")
+	return
+}
+
 func (c *UserHandler) edit(ctx *gin.Context) {
 	type userDetailReq struct {
 		NickName     string `json:"nick_name"`
@@ -205,29 +260,31 @@ func (c *UserHandler) edit(ctx *gin.Context) {
 }
 
 func (c *UserHandler) profile(ctx *gin.Context) {
-	sess := sessions.Default(ctx)
-	id := sess.Get("user_id")
-
-	value, ok := id.(int64)
-
-	if !ok {
+	u, err := c.uservice.Profile(ctx, 1)
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "获取用户信息失败")
 		return
 	}
+	str := fmt.Sprintf("user id :%d,email:%s", u.Id, u.Email)
+	ctx.String(http.StatusOK, str)
+	return
+}
 
-	user, err := c.uservice.GetUserInfo(ctx, value)
-
-	if err != nil {
+func (c *UserHandler) profileJWT(ctx *gin.Context) {
+	ca, _ := ctx.Get("claims")
+	// 你可以断定，必然有 claims
+	//if !ok {
+	//	// 你可以考虑监控住这里
+	//	ctx.String(http.StatusOK, "系统错误")
+	//	return
+	//}
+	// ok 代表是不是 *UserClaims
+	claims, ok := ca.(*UserClaims)
+	if !ok {
+		// 你可以考虑监控住这里
 		ctx.String(http.StatusOK, "系统错误")
 		return
 	}
-
-	if user.NickName == "" && user.Birth == "" && user.Introduction == "" {
-		ctx.String(http.StatusOK, "您还未填写任何个人信息")
-		return
-	}
-
-	userInfo := fmt.Sprintf("user info :昵称:%s, 生日:%s, 个人简介:%s", user.NickName, user.Birth, user.Introduction)
-
-	ctx.String(http.StatusOK, userInfo)
-	return
+	println(claims.Uid)
+	ctx.String(http.StatusOK, "你的 profile")
 }

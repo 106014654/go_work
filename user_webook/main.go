@@ -3,14 +3,17 @@ package main
 import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/redis/go-redis/v9"
+	cache2 "go_work/user_webook/internal/repository/cache"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+
 	"go_work/user_webook/init_web"
 	"go_work/user_webook/internal/repository"
 	dao2 "go_work/user_webook/internal/repository/dao"
 	"go_work/user_webook/internal/service"
 	"go_work/user_webook/internal/web"
 	"go_work/user_webook/internal/web/middleware"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -21,13 +24,17 @@ func main() {
 	store := cookie.NewStore([]byte("secret"))
 	server.Use(sessions.Sessions("mysession", store))
 
-	server.Use(middleware.NewLoginMiddleware().AddIngorePath("/users/login").
+	server.Use(middleware.NewLoginJWTMiddleware().
+		AddIngorePath("/users/login").
+		AddIngorePath("/users/profile").
 		AddIngorePath("/users/signup").Build())
 	//initdb
 	db := initDb()
-	InitTable(db)
+	redis := InitRedis()
+
+	//InitTable(db)
 	//init user handler
-	uHandle := initHandler(db)
+	uHandle := initHandler(db, redis)
 	//register route
 	uHandle.RegisteRoute(server)
 
@@ -38,9 +45,10 @@ func main() {
 	server.Run(":8081")
 }
 
-func initHandler(db *gorm.DB) *web.UserHandler {
+func initHandler(db *gorm.DB, redis redis.Cmdable) *web.UserHandler {
 	dao := dao2.NewGORMUserDAO(db)
-	rps := repository.NewUserRepository(dao)
+	cache := cache2.NewUserCache(redis)
+	rps := repository.NewUserRepository(dao, cache)
 	svc := service.NewUserService(rps)
 	uHandle := web.NewUserHandler(svc)
 	return uHandle
@@ -48,11 +56,18 @@ func initHandler(db *gorm.DB) *web.UserHandler {
 
 func initDb() *gorm.DB {
 	//db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
-	db, err := gorm.Open(mysql.Open("root:root@tcp(webook-live-mysql:3308)/webook"))
+	db, err := gorm.Open(mysql.Open("root:root@tcp(127.0.0.1:30002)/webook"))
 	if err != nil {
 		panic(err)
 	}
 	return db
+}
+
+func InitRedis() redis.Cmdable {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: "127.0.0.1:6380",
+	})
+	return redisClient
 }
 
 func InitTable(db *gorm.DB) error {

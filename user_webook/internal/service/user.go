@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"errors"
+	"gorm.io/gorm"
+
+	"golang.org/x/crypto/bcrypt"
+
 	"go_work/user_webook/internal/domain"
 	"go_work/user_webook/internal/repository"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 var ErrInvalidEmailOrPassword = errors.New("邮箱或密码对")
@@ -63,4 +65,9 @@ func (user *UserService) EditUserDetail(ctx context.Context, id int64, name, bir
 
 func (user *UserService) GetUserInfo(ctx context.Context, id int64) (domain.User, error) {
 	return user.ur.FindByUserId(ctx, id)
+}
+
+func (user *UserService) Profile(ctx context.Context, id int64) (domain.User, error) {
+	u, err := user.ur.FindById(ctx, id)
+	return u, err
 }
