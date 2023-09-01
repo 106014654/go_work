@@ -91,19 +91,19 @@ func (lc *localCodeCache) Verify(ctx context.Context, biz, phone, inputCode stri
 
 	fmt.Println(val)
 
-	if time.Now().Unix()-val.ttl > 60 {
+	if time.Now().Unix()-val.ttl > 600 {
+		lc.lclcache.Delete(key)
 		return false, ErrCodeTimeOut
 	}
 
 	if cnt < 0 {
-		lc.lclcache.Delete(key)
 		return false, ErrCodeVerifyTooManyTimes
 	}
 
 	if val.code != inputCode {
 		data := CodeCache{
 			phone: phone,
-			code:  inputCode,
+			code:  val.code,
 			cnt:   cnt,
 			ttl:   val.ttl,
 		}
