@@ -5,13 +5,17 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 )
 
 var (
 	ErrCodeSendTooMany        = errors.New("发送验证码太频繁")
 	ErrCodeVerifyTooManyTimes = errors.New("验证次数太多")
-	ErrUnknownForCode         = errors.New("我也不知发生什么了，反正是跟 code 有关")
+	ErrUnknownForCode         = errors.New("验证码错误")
+	ErrCodeTimeOut            = errors.New("验证码超时")
 )
 
 type CodeCacheInter interface {
@@ -19,8 +23,95 @@ type CodeCacheInter interface {
 	Verify(ctx context.Context, biz, phone, inputCode string) (bool, error)
 }
 
+type localCodeCache struct {
+	lclcache sync.Map
+}
+
+type CodeCache struct {
+	phone string
+	code  string
+	cnt   int
+	ttl   int64
+}
+
 type RedisCodeCache struct {
 	client redis.Cmdable
+}
+
+func NewLocalCodeCache() CodeCacheInter {
+	var m sync.Map
+	return &localCodeCache{
+		lclcache: m,
+	}
+}
+
+func (lc *localCodeCache) Set(ctx context.Context, biz, phone, code string) error {
+	key := lc.key(biz, phone)
+
+	value, ok := lc.lclcache.Load(key)
+
+	if ok {
+		val, _ := value.(CodeCache)
+
+		fmt.Println("ok", val.phone, val.code, val.ttl)
+		if time.Now().Unix()-val.ttl < 10 || val.cnt == 3 {
+			return ErrCodeSendTooMany
+		}
+
+	} else {
+		data := CodeCache{
+			phone: phone,
+			code:  code,
+			cnt:   3,
+			ttl:   time.Now().Unix(),
+		}
+
+		fmt.Println("data", data.phone, data.code, data.ttl, key)
+		lc.lclcache.Store(key, data)
+	}
+
+	return nil
+}
+
+func (lc *localCodeCache) Verify(ctx context.Context, biz, phone, inputCode string) (bool, error) {
+	fmt.Printf("params: %s,%s,%s", biz, phone, inputCode)
+	key := lc.key(biz, phone)
+	value, ok := lc.lclcache.Load(key)
+
+	if !ok {
+		return false, ErrUnknownForCode
+	}
+
+	val, ok := value.(CodeCache)
+
+	if !ok {
+		return false, errors.New("系统错误2")
+	}
+	cnt := val.cnt - 1
+
+	fmt.Println(val)
+
+	if time.Now().Unix()-val.ttl > 60 {
+		return false, ErrCodeTimeOut
+	}
+
+	if cnt < 0 {
+		return false, ErrCodeVerifyTooManyTimes
+	}
+
+	if val.code != inputCode {
+		data := CodeCache{
+			phone: phone,
+			code:  inputCode,
+			cnt:   cnt,
+			ttl:   val.ttl,
+		}
+
+		lc.lclcache.Store(key, data)
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func NewCodeCache(client redis.Cmdable) CodeCacheInter {
@@ -76,5 +167,9 @@ func (c *RedisCodeCache) Verify(ctx context.Context, biz, phone, inputCode strin
 }
 
 func (c *RedisCodeCache) key(biz, phone string) string {
+	return fmt.Sprintf("phone_code:%s:%s", biz, phone)
+}
+
+func (lc *localCodeCache) key(biz, phone string) string {
 	return fmt.Sprintf("phone_code:%s:%s", biz, phone)
 }

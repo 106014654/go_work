@@ -343,7 +343,8 @@ func (c *UserHandler) LoginSMS(ctx *gin.Context) {
 		return
 	}
 
-	// 这边，可以加上各种校验
+	fmt.Println("LoginSMS", biz, req.Phone, req.Code)
+
 	ok, err := c.codeservice.Verify(ctx, biz, req.Phone, req.Code)
 	fmt.Println(ok, err)
 	if err != nil {

@@ -4,16 +4,15 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/redis/go-redis/v9"
-	cache2 "go_work/user_webook/internal/repository/cache"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-
 	"go_work/user_webook/init_web"
 	"go_work/user_webook/internal/repository"
+	cache2 "go_work/user_webook/internal/repository/cache"
 	dao2 "go_work/user_webook/internal/repository/dao"
 	"go_work/user_webook/internal/service"
 	"go_work/user_webook/internal/web"
 	"go_work/user_webook/internal/web/middleware"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -50,8 +49,11 @@ func initHandler(db *gorm.DB, redis redis.Cmdable) *web.UserHandler {
 	cache := cache2.NewUserCache(redis)
 	rps := repository.NewUserRepository(dao, cache)
 	svc := service.NewUserService(rps)
-	rcache := cache2.NewCodeCache(redis)
-	cacherps := repository.NewCodeRepository(rcache)
+
+	//rcache := cache2.NewCodeCache(redis)
+	lcache := cache2.NewLocalCodeCache()
+	//cacherps := repository.NewCodeRepository(rcache)
+	cacherps := repository.NewCodeRepository(lcache)
 	codesvc := service.NewCodeService(cacherps)
 	uHandle := web.NewUserHandler(svc, codesvc)
 	return uHandle
