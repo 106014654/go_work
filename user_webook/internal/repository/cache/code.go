@@ -96,6 +96,7 @@ func (lc *localCodeCache) Verify(ctx context.Context, biz, phone, inputCode stri
 	}
 
 	if cnt < 0 {
+		lc.lclcache.Delete(key)
 		return false, ErrCodeVerifyTooManyTimes
 	}
 
