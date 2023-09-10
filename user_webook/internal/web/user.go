@@ -384,6 +384,7 @@ func (c *UserHandler) LoginSMS(ctx *gin.Context) {
 	//}
 
 	ctx.JSON(http.StatusOK, Result{
-		Msg: "验证码校验通过",
+		Code: 0,
+		Msg:  "验证码校验通过",
 	})
 }

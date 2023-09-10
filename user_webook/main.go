@@ -26,6 +26,7 @@ func main() {
 	server.Use(middleware.NewLoginMiddleware().
 		AddIngorePath("/users/login").
 		AddIngorePath("/users/profile").
+		AddIngorePath("/users/logincode").
 		AddIngorePath("/users/signup").Build())
 	//initdb
 	db := initDb()

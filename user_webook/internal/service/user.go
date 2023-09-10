@@ -20,17 +20,17 @@ type UserServiceInter interface {
 	EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error
 }
 
-type UserService struct {
+type userService struct {
 	ur repository.UserRepositoryRepInter
 }
 
 func NewUserService(usr repository.UserRepositoryRepInter) UserServiceInter {
-	return &UserService{
+	return &userService{
 		ur: usr,
 	}
 }
 
-func (user *UserService) SignUp(ctx context.Context, u domain.User) error {
+func (user *userService) SignUp(ctx context.Context, u domain.User) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (user *UserService) SignUp(ctx context.Context, u domain.User) error {
 	return user.ur.Create(ctx, u)
 }
 
-func (user *UserService) Login(ctx context.Context, email, password string) (domain.User, error) {
+func (user *userService) Login(ctx context.Context, email, password string) (domain.User, error) {
 	us, err := user.ur.FindByEmail(ctx, email)
 	if err == gorm.ErrRecordNotFound {
 		return domain.User{}, nil
@@ -59,7 +59,7 @@ func (user *UserService) Login(ctx context.Context, email, password string) (dom
 	return us, nil
 }
 
-func (user *UserService) EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error {
+func (user *userService) EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error {
 	err := user.ur.EditByUserId(ctx, domain.User{
 		Id:           id,
 		NickName:     name,
@@ -70,11 +70,11 @@ func (user *UserService) EditUserDetail(ctx context.Context, id int64, name, bir
 	return err
 }
 
-func (user *UserService) GetUserInfo(ctx context.Context, id int64) (domain.User, error) {
+func (user *userService) GetUserInfo(ctx context.Context, id int64) (domain.User, error) {
 	return user.ur.FindByUserId(ctx, id)
 }
 
-func (user *UserService) Profile(ctx context.Context, id int64) (domain.User, error) {
+func (user *userService) Profile(ctx context.Context, id int64) (domain.User, error) {
 	u, err := user.ur.FindById(ctx, id)
 	return u, err
 }
