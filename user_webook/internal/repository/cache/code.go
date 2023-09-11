@@ -16,6 +16,7 @@ var (
 	ErrCodeVerifyTooManyTimes = errors.New("验证次数太多")
 	ErrUnknownForCode         = errors.New("验证码错误")
 	ErrCodeTimeOut            = errors.New("验证码超时")
+	ErrCodeServerFail         = errors.New("系统错误")
 )
 
 type CodeCacheInter interface {
@@ -109,7 +110,7 @@ func (lc *localCodeCache) Verify(ctx context.Context, biz, phone, inputCode stri
 		}
 
 		lc.lclcache.Store(key, data)
-		return false, nil
+		return false, ErrUnknownForCode
 	}
 
 	return true, nil

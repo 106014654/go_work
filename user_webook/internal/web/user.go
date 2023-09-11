@@ -347,6 +347,40 @@ func (c *UserHandler) LoginSMS(ctx *gin.Context) {
 
 	ok, err := c.codeservice.Verify(ctx, biz, req.Phone, req.Code)
 	fmt.Println(ok, err)
+
+	// 本地缓存
+	//if err == repository.ErrCodeVerifyTooManyTimes {
+	//	ctx.JSON(http.StatusOK, Result{
+	//		Code: 3,
+	//		Msg:  "校验次数过多",
+	//	})
+	//	return
+	//}
+	//
+	//if err == repository.ErrCodeVerifyErrCodeTimeOut {
+	//	ctx.JSON(http.StatusOK, Result{
+	//		Code: 6,
+	//		Msg:  "验证码超时",
+	//	})
+	//	return
+	//}
+	//
+	//if err == repository.ErrCodeVerifyErrUnknownForCode {
+	//	ctx.JSON(http.StatusOK, Result{
+	//		Code: 7,
+	//		Msg:  "验证码有误",
+	//	})
+	//	return
+	//}
+	//
+	//if err == repository.ErrCodeVerifyErrCodeServerFail {
+	//	ctx.JSON(http.StatusOK, Result{
+	//		Code: 8,
+	//		Msg:  "系统错误",
+	//	})
+	//	return
+	//}
+
 	if err != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
@@ -361,27 +395,6 @@ func (c *UserHandler) LoginSMS(ctx *gin.Context) {
 		})
 		return
 	}
-
-	// 我这个手机号，会不会是一个新用户呢？
-	// 这样子
-	//user, err := c.uservice.FindOrCreate(ctx, req.Phone)
-	//if err != nil {
-	//	ctx.JSON(http.StatusOK, Result{
-	//		Code: 5,
-	//		Msg:  "系统错误",
-	//	})
-	//	return
-	//}
-	//
-	//// 这边要怎么办呢？
-	//// 从哪来？
-	//if err = c.setJWTToken(ctx, user.Id); err != nil {
-	//	ctx.JSON(http.StatusOK, Result{
-	//		Code: 5,
-	//		Msg:  "系统错误",
-	//	})
-	//	return
-	//}
 
 	ctx.JSON(http.StatusOK, Result{
 		Code: 0,

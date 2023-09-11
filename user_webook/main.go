@@ -51,10 +51,10 @@ func initHandler(db *gorm.DB, redis redis.Cmdable) *web.UserHandler {
 	rps := repository.NewUserRepository(dao, cache)
 	svc := service.NewUserService(rps)
 
-	//rcache := cache2.NewCodeCache(redis)
-	lcache := cache2.NewLocalCodeCache()
-	//cacherps := repository.NewCodeRepository(rcache)
-	cacherps := repository.NewCodeRepository(lcache)
+	rcache := cache2.NewCodeCache(redis)
+	//lcache := cache2.NewLocalCodeCache()
+	cacherps := repository.NewCodeRepository(rcache)
+	//cacherps := repository.NewCodeRepository(lcache)
 	codesvc := service.NewCodeService(cacherps)
 	uHandle := web.NewUserHandler(svc, codesvc)
 	return uHandle

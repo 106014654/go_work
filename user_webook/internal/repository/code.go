@@ -6,8 +6,11 @@ import (
 )
 
 var (
-	ErrCodeSendTooMany        = cache.ErrCodeSendTooMany
-	ErrCodeVerifyTooManyTimes = cache.ErrCodeVerifyTooManyTimes
+	ErrCodeSendTooMany             = cache.ErrCodeSendTooMany
+	ErrCodeVerifyTooManyTimes      = cache.ErrCodeVerifyTooManyTimes
+	ErrCodeVerifyErrCodeTimeOut    = cache.ErrCodeTimeOut
+	ErrCodeVerifyErrUnknownForCode = cache.ErrUnknownForCode
+	ErrCodeVerifyErrCodeServerFail = cache.ErrCodeServerFail
 )
 
 type CodeRepositoryInter interface {
