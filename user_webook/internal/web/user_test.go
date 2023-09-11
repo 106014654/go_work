@@ -4,19 +4,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
 	"go_work/user_webook/internal/repository"
 	"go_work/user_webook/internal/service"
 	svcmocks "go_work/user_webook/internal/service/mocks"
-	"time"
-
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestSMSCode(t *testing.T) {
