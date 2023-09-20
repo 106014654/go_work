@@ -35,6 +35,20 @@ func (m *MockUserServiceInter) EXPECT() *MockUserServiceInterMockRecorder {
 	return m.recorder
 }
 
+// EditSmsCntByPhone mocks base method.
+func (m *MockUserServiceInter) EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditSmsCntByPhone", ctx, phone, cnt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditSmsCntByPhone indicates an expected call of EditSmsCntByPhone.
+func (mr *MockUserServiceInterMockRecorder) EditSmsCntByPhone(ctx, phone, cnt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditSmsCntByPhone", reflect.TypeOf((*MockUserServiceInter)(nil).EditSmsCntByPhone), ctx, phone, cnt)
+}
+
 // EditUserDetail mocks base method.
 func (m *MockUserServiceInter) EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error {
 	m.ctrl.T.Helper()
@@ -47,6 +61,21 @@ func (m *MockUserServiceInter) EditUserDetail(ctx context.Context, id int64, nam
 func (mr *MockUserServiceInterMockRecorder) EditUserDetail(ctx, id, name, birth, intro interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditUserDetail", reflect.TypeOf((*MockUserServiceInter)(nil).EditUserDetail), ctx, id, name, birth, intro)
+}
+
+// GetUserInfoByPhone mocks base method.
+func (m *MockUserServiceInter) GetUserInfoByPhone(ctx context.Context, phone string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserInfoByPhone", ctx, phone)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserInfoByPhone indicates an expected call of GetUserInfoByPhone.
+func (mr *MockUserServiceInterMockRecorder) GetUserInfoByPhone(ctx, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfoByPhone", reflect.TypeOf((*MockUserServiceInter)(nil).GetUserInfoByPhone), ctx, phone)
 }
 
 // Login mocks base method.

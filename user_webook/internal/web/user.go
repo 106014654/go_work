@@ -56,6 +56,7 @@ func (c *UserHandler) RegisteRoute(server *gin.Engine) {
 
 	ug.POST("/send/smscode", c.sendCode)
 	ug.POST("/logincode", c.LoginSMS)
+
 	//ug.POST("/profile", c.profileJWT)
 	ug.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "success")

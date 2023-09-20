@@ -65,6 +65,21 @@ func (mr *MockUserDAOInterMockRecorder) FindById(ctx, id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindById", reflect.TypeOf((*MockUserDAOInter)(nil).FindById), ctx, id)
 }
 
+// FindByPhone mocks base method.
+func (m *MockUserDAOInter) FindByPhone(ctx context.Context, phone string) (dao.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByPhone", ctx, phone)
+	ret0, _ := ret[0].(dao.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByPhone indicates an expected call of FindByPhone.
+func (mr *MockUserDAOInterMockRecorder) FindByPhone(ctx, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockUserDAOInter)(nil).FindByPhone), ctx, phone)
+}
+
 // Insert mocks base method.
 func (m *MockUserDAOInter) Insert(ctx context.Context, u dao.User) error {
 	m.ctrl.T.Helper()
@@ -91,4 +106,18 @@ func (m *MockUserDAOInter) Update(ctx context.Context, u dao.User) error {
 func (mr *MockUserDAOInterMockRecorder) Update(ctx, u interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserDAOInter)(nil).Update), ctx, u)
+}
+
+// UpdateSmsCntByPhone mocks base method.
+func (m *MockUserDAOInter) UpdateSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSmsCntByPhone", ctx, phone, cnt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateSmsCntByPhone indicates an expected call of UpdateSmsCntByPhone.
+func (mr *MockUserDAOInterMockRecorder) UpdateSmsCntByPhone(ctx, phone, cnt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSmsCntByPhone", reflect.TypeOf((*MockUserDAOInter)(nil).UpdateSmsCntByPhone), ctx, phone, cnt)
 }

@@ -14,10 +14,12 @@ import (
 
 type UserRepositoryRepInter interface {
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
+	FindByPhone(ctx context.Context, phone string) (domain.User, error)
 	Create(ctx context.Context, u domain.User) error
 	FindById(ctx context.Context, id int64) (domain.User, error)
 	EditByUserId(ctx context.Context, u domain.User) error
 	FindByUserId(ctx context.Context, id int64) (domain.User, error)
+	EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error
 }
 
 type UserRepository struct {
@@ -38,6 +40,13 @@ func (ur *UserRepository) Create(ctx context.Context, u domain.User) error {
 
 func (ur *UserRepository) FindByEmail(ctx context.Context, email string) (domain.User, error) {
 	u, err := ur.dao.FindByEmail(ctx, email)
+	if err != nil {
+		return domain.User{}, err
+	}
+	return ur.entityToDomain(u), nil
+}
+func (ur *UserRepository) FindByPhone(ctx context.Context, phone string) (domain.User, error) {
+	u, err := ur.dao.FindByPhone(ctx, phone)
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -65,6 +74,9 @@ func (ur *UserRepository) EditByUserId(ctx context.Context, u domain.User) error
 		Birth:        u.Birth,
 		Introduction: u.Introduction,
 	})
+}
+func (ur *UserRepository) EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	return ur.dao.UpdateSmsCntByPhone(ctx, phone, cnt)
 }
 
 func (ur *UserRepository) FindById(ctx context.Context, id int64) (domain.User, error) {

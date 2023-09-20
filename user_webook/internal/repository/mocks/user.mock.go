@@ -63,6 +63,20 @@ func (mr *MockUserRepositoryRepInterMockRecorder) EditByUserId(ctx, u interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditByUserId", reflect.TypeOf((*MockUserRepositoryRepInter)(nil).EditByUserId), ctx, u)
 }
 
+// EditSmsCntByPhone mocks base method.
+func (m *MockUserRepositoryRepInter) EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditSmsCntByPhone", ctx, phone, cnt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditSmsCntByPhone indicates an expected call of EditSmsCntByPhone.
+func (mr *MockUserRepositoryRepInterMockRecorder) EditSmsCntByPhone(ctx, phone, cnt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditSmsCntByPhone", reflect.TypeOf((*MockUserRepositoryRepInter)(nil).EditSmsCntByPhone), ctx, phone, cnt)
+}
+
 // FindByEmail mocks base method.
 func (m *MockUserRepositoryRepInter) FindByEmail(ctx context.Context, email string) (domain.User, error) {
 	m.ctrl.T.Helper()
@@ -91,6 +105,21 @@ func (m *MockUserRepositoryRepInter) FindById(ctx context.Context, id int64) (do
 func (mr *MockUserRepositoryRepInterMockRecorder) FindById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindById", reflect.TypeOf((*MockUserRepositoryRepInter)(nil).FindById), ctx, id)
+}
+
+// FindByPhone mocks base method.
+func (m *MockUserRepositoryRepInter) FindByPhone(ctx context.Context, phone string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByPhone", ctx, phone)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByPhone indicates an expected call of FindByPhone.
+func (mr *MockUserRepositoryRepInterMockRecorder) FindByPhone(ctx, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockUserRepositoryRepInter)(nil).FindByPhone), ctx, phone)
 }
 
 // FindByUserId mocks base method.

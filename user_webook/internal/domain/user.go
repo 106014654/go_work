@@ -12,5 +12,6 @@ type User struct {
 	NickName     string
 	Birth        string
 	Introduction string
+	SmsCnt       int64
 	Ctime        time.Time
 }

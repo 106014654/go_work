@@ -12,9 +12,11 @@ import (
 
 type UserDAOInter interface {
 	FindByEmail(ctx context.Context, email string) (User, error)
+	FindByPhone(ctx context.Context, phone string) (User, error)
 	FindById(ctx context.Context, id int64) (User, error)
 	Insert(ctx context.Context, u User) error
 	Update(ctx context.Context, u User) error
+	UpdateSmsCntByPhone(ctx context.Context, phone string, cnt int64) error
 }
 
 type GORMUserDAO struct {
@@ -30,6 +32,13 @@ func NewGORMUserDAO(db *gorm.DB) UserDAOInter {
 func (ud *GORMUserDAO) FindByEmail(ctx context.Context, email string) (User, error) {
 	var u User
 	err := ud.db.WithContext(ctx).Where("email = ?", email).First(&u).Error
+
+	return u, err
+}
+
+func (ud *GORMUserDAO) FindByPhone(ctx context.Context, phone string) (User, error) {
+	var u User
+	err := ud.db.WithContext(ctx).Where("phone = ?", phone).First(&u).Error
 
 	return u, err
 }
@@ -62,7 +71,12 @@ func (ud *GORMUserDAO) Insert(ctx context.Context, u User) error {
 func (ud *GORMUserDAO) Update(ctx context.Context, u User) error {
 	err := ud.db.WithContext(ctx).Where("id = ?", u.Id).
 		Updates(User{NickName: u.NickName, Birth: u.Birth, Introduction: u.Introduction}).Error
+	return err
+}
 
+func (ud *GORMUserDAO) UpdateSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	err := ud.db.WithContext(ctx).Where("phone = ?", phone).
+		UpdateColumn("sms_cnt", cnt).Error
 	return err
 }
 
@@ -77,6 +91,8 @@ type User struct {
 	NickName     string
 	Birth        string
 	Introduction string
+
+	SmsCnt int64
 
 	// 创建时间，毫秒数
 	Ctime int64

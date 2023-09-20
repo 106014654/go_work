@@ -18,6 +18,8 @@ type UserServiceInter interface {
 	SignUp(ctx context.Context, u domain.User) error
 	Profile(ctx context.Context, id int64) (domain.User, error)
 	EditUserDetail(ctx context.Context, id int64, name, birth, intro string) error
+	EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error
+	GetUserInfoByPhone(ctx context.Context, phone string) (domain.User, error)
 }
 
 type userService struct {
@@ -70,8 +72,18 @@ func (user *userService) EditUserDetail(ctx context.Context, id int64, name, bir
 	return err
 }
 
+func (user *userService) EditSmsCntByPhone(ctx context.Context, phone string, cnt int64) error {
+	err := user.ur.EditSmsCntByPhone(ctx, phone, cnt)
+
+	return err
+}
+
 func (user *userService) GetUserInfo(ctx context.Context, id int64) (domain.User, error) {
 	return user.ur.FindByUserId(ctx, id)
+}
+
+func (user *userService) GetUserInfoByPhone(ctx context.Context, phone string) (domain.User, error) {
+	return user.ur.FindByPhone(ctx, phone)
 }
 
 func (user *userService) Profile(ctx context.Context, id int64) (domain.User, error) {
