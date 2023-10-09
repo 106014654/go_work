@@ -7,18 +7,12 @@ import (
 	"net/http"
 )
 
-func ZapUserReq[T any](fn func(ctx *gin.Context, req T) (domain.User, error)) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		var req T
-		zap.L().Debug("请求接口开始", zap.String("action", "login"), zap.Any("req", req))
-		if err := ctx.Bind(&req); err != nil {
-			return
-		}
-		_, err := fn(ctx, req)
-		if err != nil {
-			ctx.String(http.StatusInternalServerError, "系统错误")
-			zap.L().Debug("请求接口失败", zap.String("action", "login"), zap.Error(err))
-		}
-		ctx.String(http.StatusOK, "登录成功")
+func ZapUserReq(us *UserHandler, ctx *gin.Context, email, password string) (domain.User, error) {
+	zap.L().Debug("请求接口开始", zap.String("action", "login"), zap.String("param", email))
+	user, err := us.uservice.Login(ctx, email, password)
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "系统错误")
+		zap.L().Debug("请求接口失败", zap.String("action", "login"), zap.Error(err))
 	}
+	return user, err
 }
